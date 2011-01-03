@@ -98,11 +98,10 @@ SYNTHESIZE_SINGLETON_FOR_CLASS(FullyLoaded);
 }
 
 - (UIImage *)imageForURL:(NSString *)aURLString {
-	UIImage *image = [self.imageCache objectForKey:aURLString];
-	if (image) {
+	UIImage *image = nil;
+	if ((image = [self.imageCache objectForKey:aURLString])) {
 		return image;
-	} else if ([[NSFileManager defaultManager] fileExistsAtPath:[self pathForImage:aURLString]]) {
-		UIImage *image = [UIImage imageWithContentsOfFile:[self pathForImage:aURLString]];
+	} else if ((image = [UIImage imageWithContentsOfFile:[self pathForImage:aURLString]])) {
 		[self.imageCache setObject:image forKey:aURLString];
 		return image;
 	} else if (![self.inProgressURLStrings containsObject:aURLString]) {
