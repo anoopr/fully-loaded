@@ -151,7 +151,7 @@ SYNTHESIZE_SINGLETON_FOR_CLASS(FullyLoaded);
 
 - (void)loadImage:(ASIHTTPRequest *)request {
 //	NSLog(@"Handling: %@", [[request url] absoluteString]);
-	UIImage *image = [UIImage imageWithData:[NSData dataWithContentsOfFile:[self pathForImage:[[request url] absoluteString]]]];
+	UIImage *image = [UIImage imageWithContentsOfFile:[self pathForImage:[[request url] absoluteString]]];
 	[self.imageCache setObject:image forKey:[[request url] absoluteString]];
 	[self.inProgressURLStrings removeObject:[[request url] absoluteString]];
 	[[NSNotificationCenter defaultCenter] postNotificationName:FLImageLoadedNotification
