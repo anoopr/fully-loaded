@@ -98,20 +98,22 @@ SYNTHESIZE_SINGLETON_FOR_CLASS(FullyLoaded);
 }
 
 - (UIImage *)imageForURL:(NSString *)aURLString {
-	UIImage *image = nil;
-	if ((image = [self.imageCache objectForKey:aURLString])) {
-		return image;
-	} else if ((image = [UIImage imageWithContentsOfFile:[self pathForImage:aURLString]])) {
-		[self.imageCache setObject:image forKey:aURLString];
-		return image;
-	} else if (![self.inProgressURLStrings containsObject:aURLString]) {
-		[self.inProgressURLStrings addObject:aURLString];
-		if ([self.networkQueue isSuspended]) {
-//			NSLog(@"Pending: %@", aURLString);
-			[self.pendingURLStrings addObject:aURLString];
-		} else {
-			[self enqueueURLString:aURLString];
-		}
+	if (aURLString) {
+		UIImage *image = nil;
+		if ((image = [self.imageCache objectForKey:aURLString])) {
+			return image;
+		} else if ((image = [UIImage imageWithContentsOfFile:[self pathForImage:aURLString]])) {
+			[self.imageCache setObject:image forKey:aURLString];
+			return image;
+		} else if (![self.inProgressURLStrings containsObject:aURLString]) {
+			[self.inProgressURLStrings addObject:aURLString];
+			if ([self.networkQueue isSuspended]) {
+				//			NSLog(@"Pending: %@", aURLString);
+				[self.pendingURLStrings addObject:aURLString];
+			} else {
+				[self enqueueURLString:aURLString];
+			}
+		}		
 	}
 	return nil;
 }
