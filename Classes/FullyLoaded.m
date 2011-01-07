@@ -159,6 +159,8 @@ SYNTHESIZE_SINGLETON_FOR_CLASS(FullyLoaded);
 		[self.imageCache setObject:image forKey:[[request url] absoluteString]];
 		[[NSNotificationCenter defaultCenter] postNotificationName:FLImageLoadedNotification
 															object:self];		
+	} else {
+		[[NSFileManager defaultManager] removeItemAtPath:[self pathForImage:[[request url] absoluteString]] error:nil];
 	}
 }
 
