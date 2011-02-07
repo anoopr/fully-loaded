@@ -54,7 +54,8 @@ SYNTHESIZE_SINGLETON_FOR_CLASS(FullyLoaded);
 			inProgressURLStrings = _inProgressURLStrings;
 
 - (id)init {
-	if (self = [super init]) {
+    self = [super init];
+	if (self) {
 		self.networkQueue = [[[ASINetworkQueue alloc] init] autorelease];
 		self.networkQueue.delegate = self;
 		self.networkQueue.requestDidFinishSelector = @selector(queuedRequestFinished:);
