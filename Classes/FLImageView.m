@@ -49,6 +49,17 @@
     return self;
 }
 
+- (id)initWithCoder:(NSCoder *)aDecoder {
+    self = [super initWithCoder:aDecoder];
+    if (self) {
+        [[NSNotificationCenter defaultCenter] addObserver:self 
+												 selector:@selector(imageLoaded:)
+													 name:FLImageLoadedNotification 
+												   object:nil];
+    }
+    return self;
+}
+
 - (void)loadImageAtURLString:(NSString *)aString placeholderImage:(UIImage *)anImage {
 //	NSLog(@"Loading: %@", aString);
 	self.imageURLString = aString;
