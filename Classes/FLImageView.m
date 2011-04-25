@@ -41,6 +41,7 @@
 - (id)initWithFrame:(CGRect)frame {
     self = [super initWithFrame:frame];
     if (self) {
+        self.contentMode = UIViewContentModeScaleAspectFit;
 		[[NSNotificationCenter defaultCenter] addObserver:self 
 												 selector:@selector(imageLoaded:)
 													 name:FLImageLoadedNotification 
@@ -52,6 +53,7 @@
 - (id)initWithCoder:(NSCoder *)aDecoder {
     self = [super initWithCoder:aDecoder];
     if (self) {
+        self.contentMode = UIViewContentModeScaleAspectFit;
         [[NSNotificationCenter defaultCenter] addObserver:self 
 												 selector:@selector(imageLoaded:)
 													 name:FLImageLoadedNotification 
