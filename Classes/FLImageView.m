@@ -65,7 +65,6 @@
 - (void)loadImageAtURLString:(NSString *)aString placeholderImage:(UIImage *)anImage {
     //	NSLog(@"Loading: %@", aString);
     self.imageURLString = aString;
-    self.image = nil;
     self.image = [[FullyLoaded sharedFullyLoaded] imageForURL:self.imageURLString];
     if (self.image == nil)
         self.image = anImage;
