@@ -42,10 +42,10 @@
     self = [super initWithFrame:frame];
     if (self) {
         self.contentMode = UIViewContentModeScaleAspectFit;
-		[[NSNotificationCenter defaultCenter] addObserver:self 
-												 selector:@selector(imageLoaded:)
-													 name:FLImageLoadedNotification 
-												   object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self 
+                                                 selector:@selector(imageLoaded:)
+                                                     name:FLImageLoadedNotification 
+                                                   object:nil];
     }
     return self;
 }
@@ -55,36 +55,36 @@
     if (self) {
         self.contentMode = UIViewContentModeScaleAspectFit;
         [[NSNotificationCenter defaultCenter] addObserver:self 
-												 selector:@selector(imageLoaded:)
-													 name:FLImageLoadedNotification 
-												   object:nil];
+                                                 selector:@selector(imageLoaded:)
+                                                     name:FLImageLoadedNotification 
+                                                   object:nil];
     }
     return self;
 }
 
 - (void)loadImageAtURLString:(NSString *)aString placeholderImage:(UIImage *)anImage {
-//	NSLog(@"Loading: %@", aString);
-	self.imageURLString = aString;
-	self.image = nil;
-	self.image = [[FullyLoaded sharedFullyLoaded] imageForURL:self.imageURLString];
-	if (self.image == nil)
-		self.image = anImage;
-	[self.superview setNeedsDisplay];
+    //	NSLog(@"Loading: %@", aString);
+    self.imageURLString = aString;
+    self.image = nil;
+    self.image = [[FullyLoaded sharedFullyLoaded] imageForURL:self.imageURLString];
+    if (self.image == nil)
+        self.image = anImage;
+    [self.superview setNeedsDisplay];
 }
 
 - (void)imageLoaded:(NSNotification *)aNote {
-	UIImage *anImage = [[FullyLoaded sharedFullyLoaded] imageForURL:self.imageURLString];
-	if (anImage) {
-		self.image = anImage;
-		[self.superview setNeedsDisplay];
-	}
+    UIImage *anImage = [[FullyLoaded sharedFullyLoaded] imageForURL:self.imageURLString];
+    if (anImage) {
+        self.image = anImage;
+        [self.superview setNeedsDisplay];
+    }
 }
 
 - (void)dealloc {
-	[[NSNotificationCenter defaultCenter] removeObserver:self
-													name:FLImageLoadedNotification
-												  object:nil];
-	self.imageURLString = nil;
+    [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                    name:FLImageLoadedNotification
+                                                  object:nil];
+    self.imageURLString = nil;
     [super dealloc];
 }
 

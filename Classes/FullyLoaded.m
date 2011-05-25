@@ -46,132 +46,132 @@
 SYNTHESIZE_SINGLETON_FOR_CLASS(FullyLoaded);
 
 @synthesize networkQueue = _networkQueue,
-			responseQueue = _responseQueue,
-			queueSuspensionTimer = _queueSuspensionTimer,
-			pendingURLStrings = _pendingURLStrings,
-			imageCache = _imageCache,
-			imageCachePath = _imageCachePath,
-			inProgressURLStrings = _inProgressURLStrings;
+responseQueue = _responseQueue,
+queueSuspensionTimer = _queueSuspensionTimer,
+pendingURLStrings = _pendingURLStrings,
+imageCache = _imageCache,
+imageCachePath = _imageCachePath,
+inProgressURLStrings = _inProgressURLStrings;
 
 - (id)init {
     self = [super init];
-	if (self) {
-		self.networkQueue = [[[ASINetworkQueue alloc] init] autorelease];
-		self.networkQueue.delegate = self;
-		self.networkQueue.requestDidFinishSelector = @selector(queuedRequestFinished:);
-		self.networkQueue.requestDidFailSelector = @selector(queuedRequestFailed:);
-		[self.networkQueue go];
-		
-		self.responseQueue = [[[NSOperationQueue alloc] init] autorelease];
-		
-		self.pendingURLStrings = [[NSMutableArray alloc] init];
-		self.inProgressURLStrings = [[NSMutableSet alloc] init];
-		self.imageCache = [[NSMutableDictionary alloc] init];
-		self.imageCachePath = [[NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) lastObject] 
-							   stringByAppendingPathComponent:@"images"];
-		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(resume) name:FLIdleNotification object:nil];
-	}
-	return self;
+    if (self) {
+        self.networkQueue = [[[ASINetworkQueue alloc] init] autorelease];
+        self.networkQueue.delegate = self;
+        self.networkQueue.requestDidFinishSelector = @selector(queuedRequestFinished:);
+        self.networkQueue.requestDidFailSelector = @selector(queuedRequestFailed:);
+        [self.networkQueue go];
+        
+        self.responseQueue = [[[NSOperationQueue alloc] init] autorelease];
+        
+        self.pendingURLStrings = [[NSMutableArray alloc] init];
+        self.inProgressURLStrings = [[NSMutableSet alloc] init];
+        self.imageCache = [[NSMutableDictionary alloc] init];
+        self.imageCachePath = [[NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) lastObject] 
+                               stringByAppendingPathComponent:@"images"];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(resume) name:FLIdleNotification object:nil];
+    }
+    return self;
 }
 
 - (void)resume {
-//	NSLog(@"Resume");
-	[self.networkQueue setSuspended:NO];
-	[self.responseQueue setSuspended:NO];
-	int pendingCount = [self.pendingURLStrings count];
-	for (int i=0; i<pendingCount; i++) {
-		[self enqueueURLString:[self.pendingURLStrings lastObject]];
-		[self.pendingURLStrings removeLastObject];
-	}
+    //	NSLog(@"Resume");
+    [self.networkQueue setSuspended:NO];
+    [self.responseQueue setSuspended:NO];
+    int pendingCount = [self.pendingURLStrings count];
+    for (int i=0; i<pendingCount; i++) {
+        [self enqueueURLString:[self.pendingURLStrings lastObject]];
+        [self.pendingURLStrings removeLastObject];
+    }
 }
 
 - (void)suspend {
-//	NSLog(@"Suspend");
-	[self.networkQueue setSuspended:YES];
-	[self.responseQueue setSuspended:YES];
-	[[NSNotificationQueue defaultQueue] enqueueNotification:[NSNotification notificationWithName:FLIdleNotification object:self ] 
-											   postingStyle:NSPostWhenIdle];	
+    //	NSLog(@"Suspend");
+    [self.networkQueue setSuspended:YES];
+    [self.responseQueue setSuspended:YES];
+    [[NSNotificationQueue defaultQueue] enqueueNotification:[NSNotification notificationWithName:FLIdleNotification object:self ] 
+                                               postingStyle:NSPostWhenIdle];	
 }
 
 - (void)emptyCache {
-//	NSLog(@"Emptying Cache");
-	[self.imageCache removeAllObjects];
+    //	NSLog(@"Emptying Cache");
+    [self.imageCache removeAllObjects];
 }
 
 - (UIImage *)imageForURL:(NSString *)aURLString {
-	if (aURLString) {
-		UIImage *image = nil;
-		if ((image = [self.imageCache objectForKey:aURLString])) {
-			return image;
-		} else if ((image = [UIImage imageWithContentsOfFile:[self pathForImage:aURLString]])) {
-			[self.imageCache setObject:image forKey:aURLString];
-			return image;
-		} else if (![self.inProgressURLStrings containsObject:aURLString]) {
-			[self.inProgressURLStrings addObject:aURLString];
-			if ([self.networkQueue isSuspended]) {
-				//			NSLog(@"Pending: %@", aURLString);
-				[self.pendingURLStrings addObject:aURLString];
-			} else {
-				[self enqueueURLString:aURLString];
-			}
-		}		
-	}
-	return nil;
+    if (aURLString) {
+        UIImage *image = nil;
+        if ((image = [self.imageCache objectForKey:aURLString])) {
+            return image;
+        } else if ((image = [UIImage imageWithContentsOfFile:[self pathForImage:aURLString]])) {
+            [self.imageCache setObject:image forKey:aURLString];
+            return image;
+        } else if (![self.inProgressURLStrings containsObject:aURLString]) {
+            [self.inProgressURLStrings addObject:aURLString];
+            if ([self.networkQueue isSuspended]) {
+                //			NSLog(@"Pending: %@", aURLString);
+                [self.pendingURLStrings addObject:aURLString];
+            } else {
+                [self enqueueURLString:aURLString];
+            }
+        }		
+    }
+    return nil;
 }
 
 - (NSString *)pathForImage:(NSString *)aURLString {
-	NSURL *url = [NSURL URLWithString:aURLString];
-	NSString *targetPath = [self.imageCachePath stringByAppendingPathComponent:[url host]];
-	return [targetPath stringByAppendingPathComponent:[url path]];	
+    NSURL *url = [NSURL URLWithString:aURLString];
+    NSString *targetPath = [self.imageCachePath stringByAppendingPathComponent:[url host]];
+    return [targetPath stringByAppendingPathComponent:[url path]];	
 }
 
 - (NSString *)directoryForImage:(NSString *)aURLString {
-	return [[self pathForImage:aURLString] stringByDeletingLastPathComponent];
+    return [[self pathForImage:aURLString] stringByDeletingLastPathComponent];
 }
 
 - (void)enqueueURLString:(NSString *)aURLString {
-//	NSLog(@"Enqueuing: %@", [[request url] absoluteString]);
-	[[NSFileManager defaultManager] createDirectoryAtPath:[self directoryForImage:aURLString] withIntermediateDirectories:YES attributes:nil error:nil];
-	ASIHTTPRequest *request = [ASIHTTPRequest requestWithURL:[NSURL URLWithString:aURLString]];
-	request.downloadDestinationPath = [self pathForImage:aURLString]; 
-	[self.networkQueue addOperation:request];
+    //	NSLog(@"Enqueuing: %@", [[request url] absoluteString]);
+    [[NSFileManager defaultManager] createDirectoryAtPath:[self directoryForImage:aURLString] withIntermediateDirectories:YES attributes:nil error:nil];
+    ASIHTTPRequest *request = [ASIHTTPRequest requestWithURL:[NSURL URLWithString:aURLString]];
+    request.downloadDestinationPath = [self pathForImage:aURLString]; 
+    [self.networkQueue addOperation:request];
 }
 
 - (void)queuedRequestFinished:(ASIHTTPRequest *)request {
-	NSInvocationOperation *operation = [[NSInvocationOperation alloc] initWithTarget:self selector:@selector(loadImageOnMainThread:) object:request];
-	[self.responseQueue addOperation:operation];
-	[operation release];
+    NSInvocationOperation *operation = [[NSInvocationOperation alloc] initWithTarget:self selector:@selector(loadImageOnMainThread:) object:request];
+    [self.responseQueue addOperation:operation];
+    [operation release];
 }
 
 - (void)queuedRequestFailed:(ASIHTTPRequest *)request {
-	NSLog(@"Failed: %@", [[request url] absoluteString]);
-	[self.inProgressURLStrings removeObject:[[request url] absoluteString]];	
+    NSLog(@"Failed: %@", [[request url] absoluteString]);
+    [self.inProgressURLStrings removeObject:[[request url] absoluteString]];	
 }
 
 - (void)loadImageOnMainThread:(ASIHTTPRequest *)request {
-	[self performSelectorOnMainThread:@selector(loadImage:) withObject:request waitUntilDone:YES];
+    [self performSelectorOnMainThread:@selector(loadImage:) withObject:request waitUntilDone:YES];
 }
 
 - (void)loadImage:(ASIHTTPRequest *)request {
-//	NSLog(@"Handling: %@", [[request url] absoluteString]);
-	[self.inProgressURLStrings removeObject:[[request url] absoluteString]];
-	UIImage *image = [UIImage imageWithContentsOfFile:[self pathForImage:[[request url] absoluteString]]];
-	if (image) {
-		[self.imageCache setObject:image forKey:[[request url] absoluteString]];
-		[[NSNotificationCenter defaultCenter] postNotificationName:FLImageLoadedNotification
-															object:self];		
-	} else {
-		[[NSFileManager defaultManager] removeItemAtPath:[self pathForImage:[[request url] absoluteString]] error:nil];
-	}
+    //	NSLog(@"Handling: %@", [[request url] absoluteString]);
+    [self.inProgressURLStrings removeObject:[[request url] absoluteString]];
+    UIImage *image = [UIImage imageWithContentsOfFile:[self pathForImage:[[request url] absoluteString]]];
+    if (image) {
+        [self.imageCache setObject:image forKey:[[request url] absoluteString]];
+        [[NSNotificationCenter defaultCenter] postNotificationName:FLImageLoadedNotification
+                                                            object:self];		
+    } else {
+        [[NSFileManager defaultManager] removeItemAtPath:[self pathForImage:[[request url] absoluteString]] error:nil];
+    }
 }
 
 - (void)dealloc {
-	self.networkQueue = nil;
-	self.queueSuspensionTimer = nil;
-	self.imageCache = nil;
-	self.imageCachePath = nil;
-	self.inProgressURLStrings = nil;
-	[super dealloc];
+    self.networkQueue = nil;
+    self.queueSuspensionTimer = nil;
+    self.imageCache = nil;
+    self.imageCachePath = nil;
+    self.inProgressURLStrings = nil;
+    [super dealloc];
 }
 
 @end

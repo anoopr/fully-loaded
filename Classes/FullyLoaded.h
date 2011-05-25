@@ -30,7 +30,7 @@
 #define FLIdleNotification @"FLIdleNotification"
 
 @interface FullyLoaded : NSObject {
-
+    
 }
 
 + (FullyLoaded *)sharedFullyLoaded;
