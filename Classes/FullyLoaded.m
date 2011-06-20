@@ -60,6 +60,7 @@ inProgressURLStrings = _inProgressURLStrings;
         self.networkQueue.delegate = self;
         self.networkQueue.requestDidFinishSelector = @selector(queuedRequestFinished:);
         self.networkQueue.requestDidFailSelector = @selector(queuedRequestFailed:);
+        self.networkQueue.shouldCancelAllRequestsOnFailure = NO;
         [self.networkQueue go];
         
         self.responseQueue = [[[NSOperationQueue alloc] init] autorelease];
