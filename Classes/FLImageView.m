@@ -63,19 +63,19 @@
 }
 
 - (void)loadImageAtURLString:(NSString *)aString placeholderImage:(UIImage *)anImage {
-    //	NSLog(@"Loading: %@", aString);
+    
     self.imageURLString = aString;
+    self.image = nil;
+    
     self.image = [[FullyLoaded sharedFullyLoaded] imageForURL:self.imageURLString];
     if (self.image == nil)
         self.image = anImage;
-    [self.superview setNeedsDisplay];
 }
 
 - (void)imageLoaded:(NSNotification *)aNote {
     UIImage *anImage = [[FullyLoaded sharedFullyLoaded] imageForURL:self.imageURLString];
     if (anImage) {
         self.image = anImage;
-        [self.superview setNeedsDisplay];
     }
 }
 
