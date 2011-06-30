@@ -31,6 +31,8 @@
     
 }
 
-- (void)loadImageAtURLString:(NSString *)aString placeholderImage:(UIImage *)anImage;
+@property (nonatomic, assign) BOOL autoresizeEnabled;
+
+- (void)loadImageAtURLString:(NSString *)aString placeholderImage:(UIImage *)placeholderImage;
 
 @end

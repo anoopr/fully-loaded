@@ -35,12 +35,14 @@
 
 @implementation FLImageView
 
-@synthesize imageURLString = _imageURLString;
+@synthesize autoresizeEnabled = _autoresizeEnabled,
+            imageURLString = _imageURLString;
 
 
 - (id)initWithFrame:(CGRect)frame {
     self = [super initWithFrame:frame];
     if (self) {
+        self.autoresizeEnabled = NO;
         self.contentMode = UIViewContentModeScaleAspectFit;
         [[NSNotificationCenter defaultCenter] addObserver:self 
                                                  selector:@selector(imageLoaded:)
@@ -62,20 +64,30 @@
     return self;
 }
 
-- (void)loadImageAtURLString:(NSString *)aString placeholderImage:(UIImage *)anImage {
+- (void)loadImageAtURLString:(NSString *)aString placeholderImage:(UIImage *)placeholderImage {
     
     self.imageURLString = aString;
     self.image = nil;
     
-    self.image = [[FullyLoaded sharedFullyLoaded] imageForURL:self.imageURLString];
-    if (self.image == nil)
-        self.image = anImage;
+    UIImage *anImage = [[FullyLoaded sharedFullyLoaded] imageForURL:self.imageURLString];
+    if (anImage != nil) {
+        [self populateImage:anImage];
+    } else {
+        [self populateImage:placeholderImage];
+    }
 }
 
 - (void)imageLoaded:(NSNotification *)aNote {
     UIImage *anImage = [[FullyLoaded sharedFullyLoaded] imageForURL:self.imageURLString];
     if (anImage) {
-        self.image = anImage;
+        [self populateImage:anImage];
+    }
+}
+
+- (void)populateImage:(UIImage *)anImage {
+    self.image = anImage;
+    if (self.autoresizeEnabled) {
+        [self sizeToFit];
     }
 }
 
