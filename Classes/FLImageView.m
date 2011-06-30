@@ -87,7 +87,9 @@
 - (void)populateImage:(UIImage *)anImage {
     self.image = anImage;
     if (self.autoresizeEnabled) {
-        [self sizeToFit];
+        CGRect imageFrame = self.frame;
+        imageFrame.size = self.image.size;
+        self.frame = imageFrame;
     }
 }
 
