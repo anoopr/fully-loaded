@@ -32,6 +32,7 @@
 @property (nonatomic, readwrite, retain) NSString *imageURLString;
 
 - (void)populateImage:(UIImage *)anImage;
+- (UIImage*)scaledImageJustifiedLeft:(UIImage*)image;
 
 @end
 
@@ -87,15 +88,11 @@
 }
 
 - (void)populateImage:(UIImage *)anImage {
-    self.image = anImage;
     if (self.autoresizeEnabled) {
-        UIScreen *screen = [UIScreen mainScreen];
-        if ([screen respondsToSelector:@selector(scale)] && self.image.scale != screen.scale) {
-            self.image = [UIImage imageWithCGImage:self.image.CGImage scale:screen.scale orientation:UIImageOrientationUp];
-        }
-        CGRect imageFrame = self.frame;
-        imageFrame.size = self.image.size;
-        self.frame = imageFrame;
+        self.image = [self scaledImageJustifiedLeft:anImage];
+    }
+    else {
+        self.image = anImage;
     }
 }
 
@@ -106,6 +103,50 @@
     self.imageURLString = nil;
     [super dealloc];
 }
+
+
+
+// create an image the size of the current bounds, with content left-justified
+// in the future this could be refactored with a justification enum of (left|center|right)
+// justifyImage:(UIImage*) x:(justification) y:(justification)
+- (UIImage*)scaledImageJustifiedLeft:(UIImage*)image {
+    
+    CGSize is = image.size;         // image size
+    CGSize bs = self.bounds.size;   // bounds size
+    
+    // don't bother with strange sizes
+    if (is.width < 1 || is.height < 1 || bs.width < 1 || bs.height < 1) return nil;
+    
+    // aspect ratios
+    CGFloat i_ar = is.width / is.height;
+    CGFloat b_ar = bs.width / bs.height;
+
+    CGFloat scale;
+    if (i_ar < b_ar) { // image is thinner than bounds; fit height
+        scale = bs.height / is.height;
+    }
+    else { // image is fatter than bounds; fit width
+        scale = bs.width / is.width;
+    }
+    
+    CGRect r; // draw rect, relative to bounds size; draw the entire image into this rect
+    r.size = CGSizeMake(is.width * scale, is.height * scale);
+    
+    // justification is hard-coded to x:left y:center; to generalize add justification cases for x and y 
+    r.origin = CGPointMake(0, (bs.height - r.size.height) * 0.5);
+    
+    UIGraphicsBeginImageContextWithOptions(bs, NO, [UIScreen mainScreen].scale);
+    [image drawInRect:r];
+    UIImage *res = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    
+    LOG_SIZE(is);
+    LOG_SIZE(bs);
+    LOG_SIZE(res.size);
+    
+    return res;
+}
+
 
 
 @end
