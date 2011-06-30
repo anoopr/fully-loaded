@@ -31,6 +31,8 @@
 
 @property (nonatomic, readwrite, retain) NSString *imageURLString;
 
+- (void)populateImage:(UIImage *)anImage;
+
 @end
 
 @implementation FLImageView
@@ -87,6 +89,10 @@
 - (void)populateImage:(UIImage *)anImage {
     self.image = anImage;
     if (self.autoresizeEnabled) {
+        UIScreen *screen = [UIScreen mainScreen];
+        if ([screen respondsToSelector:@selector(scale)] && self.image.scale != screen.scale) {
+            self.image = [UIImage imageWithCGImage:self.image.CGImage scale:screen.scale orientation:UIImageOrientationUp];
+        }
         CGRect imageFrame = self.frame;
         imageFrame.size = self.image.size;
         self.frame = imageFrame;
