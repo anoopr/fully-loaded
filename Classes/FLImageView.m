@@ -89,7 +89,12 @@
 
 - (void)populateImage:(UIImage *)anImage {
     if (self.autoresizeEnabled) {
-        self.image = [self scaledImageJustifiedLeft:anImage];
+        CGRect newBounds = self.frame;
+        newBounds.size.width = anImage.size.width / [UIScreen mainScreen].scale;
+        newBounds.size.height = anImage.size.height / [UIScreen mainScreen].scale;
+        self.frame = newBounds;
+        self.image = anImage;
+//        self.image = [self scaledImageJustifiedLeft:anImage];
     }
     else {
         self.image = anImage;
