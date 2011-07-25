@@ -65,9 +65,9 @@ inProgressURLStrings = _inProgressURLStrings;
         
         self.responseQueue = [[[NSOperationQueue alloc] init] autorelease];
         
-        self.pendingURLStrings = [[NSMutableArray alloc] init];
-        self.inProgressURLStrings = [[NSMutableSet alloc] init];
-        self.imageCache = [[NSMutableDictionary alloc] init];
+        self.pendingURLStrings = [[[NSMutableArray alloc] init] autorelease];
+        self.inProgressURLStrings = [[[NSMutableSet alloc] init] autorelease];
+        self.imageCache = [[[NSMutableDictionary alloc] init] autorelease];
         self.imageCachePath = [NSTemporaryDirectory() stringByAppendingPathComponent:@"images"];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(resume) name:FLIdleNotification object:nil];
     }
