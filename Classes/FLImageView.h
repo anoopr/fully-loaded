@@ -33,6 +33,12 @@
 
 @property (nonatomic, assign) BOOL autoresizeEnabled;
 
+// If YES, the view will show a centered activity indicator while the photo loads. You can customize the
+// appearance of the activity indicator using through the activityIndicator property. The indicator is lazy-loaded
+// after showsLoadingActivity is set to YES
+@property (nonatomic, assign) BOOL showsLoadingActivity; 
+@property (nonatomic, readonly, retain) UIActivityIndicatorView *activityIndicatorView;
+
 - (void)loadImageAtURLString:(NSString *)aString placeholderImage:(UIImage *)placeholderImage;
 
 @end

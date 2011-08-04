@@ -30,17 +30,22 @@
 @interface FLImageView()
 
 @property (nonatomic, readwrite, retain) NSString *imageURLString;
+@property (nonatomic, readwrite, retain) UIActivityIndicatorView *activityIndicatorView;
 
 - (void)populateImage:(UIImage *)anImage;
 - (UIImage*)scaledImageJustifiedLeft:(UIImage*)image;
+- (void)setLoading:(BOOL)isLoading;
+- (void)configureActivityIndicatorView;
 
 @end
 
 @implementation FLImageView
 
-@synthesize autoresizeEnabled = _autoresizeEnabled,
-            imageURLString = _imageURLString;
+@synthesize autoresizeEnabled;
+@synthesize showsLoadingActivity;
 
+@synthesize imageURLString;
+@synthesize activityIndicatorView;
 
 - (id)initWithFrame:(CGRect)frame {
     self = [super initWithFrame:frame];
@@ -67,6 +72,15 @@
     return self;
 }
 
+- (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                    name:FLImageLoadedNotification
+                                                  object:nil];
+    self.imageURLString = nil;
+    self.activityIndicatorView = nil;
+    [super dealloc];
+}
+
 - (void)loadImageAtURLString:(NSString *)aString placeholderImage:(UIImage *)placeholderImage {
     
     self.imageURLString = aString;
@@ -77,15 +91,44 @@
         [self populateImage:anImage];
     } else {
         [self populateImage:placeholderImage];
+        
+        //only show image loading if we're going to the network to fetch it
+        if(self.showsLoadingActivity){
+            [self setLoading:YES];
+        }
     }
 }
 
 - (void)imageLoaded:(NSNotification *)aNote {
+    
+    FSLog(@"Image loaded: %@", self.imageURLString);
+    
     UIImage *anImage = [[FullyLoaded sharedFullyLoaded] imageForURL:self.imageURLString];
     if (anImage) {
         [self populateImage:anImage];
     }
+    
+    if(self.showsLoadingActivity){
+        [self setLoading:NO];
+    }
 }
+
+#pragma mark - Overrides
+
+- (void)setShowsLoadingActivity:(BOOL)shouldShowActivity {
+    showsLoadingActivity = shouldShowActivity;
+    
+    if(shouldShowActivity){
+        if(!self.activityIndicatorView){
+            [self configureActivityIndicatorView];
+        }
+    }else {
+        [self.activityIndicatorView removeFromSuperview];
+        self.activityIndicatorView = nil;
+    }
+}
+
+#pragma mark - Private
 
 - (void)populateImage:(UIImage *)anImage {
     if (self.autoresizeEnabled) {
@@ -100,15 +143,6 @@
         self.image = anImage;
     }
 }
-
-- (void)dealloc {
-    [[NSNotificationCenter defaultCenter] removeObserver:self
-                                                    name:FLImageLoadedNotification
-                                                  object:nil];
-    self.imageURLString = nil;
-    [super dealloc];
-}
-
 
 
 // create an image the size of the current bounds, with content left-justified
@@ -152,6 +186,29 @@
     return res;
 }
 
+// if YES, shows and animates the activity indicator at the center of the view
+- (void)setLoading:(BOOL)isLoading {
+    if(isLoading){
+        [self.activityIndicatorView startAnimating];
+    }else {
+        [self.activityIndicatorView stopAnimating];
+    }
+}
 
+// sets up self.activityIndicatorView and adds it as a subview
+- (void)configureActivityIndicatorView {
+    self.activityIndicatorView = 
+        [[[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray] autorelease];
+    
+    // center the indicator
+    CGRect activityIndicatorFrame = self.activityIndicatorView.frame;
+    activityIndicatorFrame.origin.x = (self.frame.size.width / 2.f) - (activityIndicatorFrame.size.width / 2.f);
+    activityIndicatorFrame.origin.y = (self.frame.size.height / 2.f) - (activityIndicatorFrame.size.height / 2.f);
+    self.activityIndicatorView.frame = activityIndicatorFrame;
+    
+    self.activityIndicatorView.hidesWhenStopped = YES;
+    
+    [self addSubview:self.activityIndicatorView];
+}
 
 @end
