@@ -144,7 +144,7 @@ inProgressURLStrings = _inProgressURLStrings;
 }
 
 - (void)queuedRequestFailed:(ASIHTTPRequest *)request {
-    NSLog(@"Failed: %@", [[request url] absoluteString]);
+    //NSLog(@"Failed: %@", [[request url] absoluteString]);
     [self.inProgressURLStrings removeObject:[[request url] absoluteString]];	
 }
 
@@ -153,13 +153,15 @@ inProgressURLStrings = _inProgressURLStrings;
 }
 
 - (void)loadImage:(ASIHTTPRequest *)request {
-    //	NSLog(@"Handling: %@", [[request url] absoluteString]);
+    //NSLog(@"Handling: %@", [[request url] absoluteString]);
     [self.inProgressURLStrings removeObject:[[request url] absoluteString]];
     UIImage *image = [UIImage imageWithContentsOfFile:[self pathForImage:[[request url] absoluteString]]];
     if (image) {
         [self.imageCache setObject:image forKey:[[request url] absoluteString]];
         [[NSNotificationCenter defaultCenter] postNotificationName:FLImageLoadedNotification
-                                                            object:self];		
+                                                            object:self];
+        
+        //NSLog(@"Notification Posted: %@", [[request url] absoluteString]);
     } else {
         [[NSFileManager defaultManager] removeItemAtPath:[self pathForImage:[[request url] absoluteString]] error:nil];
     }
