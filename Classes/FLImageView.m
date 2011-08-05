@@ -101,8 +101,6 @@
 
 - (void)imageLoaded:(NSNotification *)aNote {
     
-    FSLog(@"Image loaded: %@", self.imageURLString);
-    
     UIImage *anImage = [[FullyLoaded sharedFullyLoaded] imageForURL:self.imageURLString];
     if (anImage) {
         [self populateImage:anImage];
