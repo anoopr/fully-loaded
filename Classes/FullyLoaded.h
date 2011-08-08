@@ -40,5 +40,6 @@
 - (void)resume;
 - (void)suspend;
 - (NSString *)pathForImage:(NSString *)aURLString;
+- (void)cacheImage:(UIImage *)anImage forURLString:(NSString *)aURLString;
 
 @end

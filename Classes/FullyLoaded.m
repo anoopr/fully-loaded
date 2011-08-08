@@ -129,6 +129,11 @@ inProgressURLStrings = _inProgressURLStrings;
     return [[self pathForImage:aURLString] stringByDeletingLastPathComponent];
 }
 
+- (void)cacheImage:(UIImage *)anImage forURLString:(NSString *)aURLString {
+    [[NSFileManager defaultManager] createDirectoryAtPath:[self directoryForImage:aURLString] withIntermediateDirectories:YES attributes:nil error:nil];
+    [UIImageJPEGRepresentation(anImage, 0.8f) writeToFile:[self pathForImage:aURLString] atomically:YES];
+}
+
 - (void)enqueueURLString:(NSString *)aURLString {
     //	NSLog(@"Enqueuing: %@", [[request url] absoluteString]);
     [[NSFileManager defaultManager] createDirectoryAtPath:[self directoryForImage:aURLString] withIntermediateDirectories:YES attributes:nil error:nil];
